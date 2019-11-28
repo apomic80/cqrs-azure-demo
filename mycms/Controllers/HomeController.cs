@@ -1,31 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using mycms.Data.Entities;
+using mycms.Data.Infrastructure;
 using mycms.Models;
+using mycms.Models.ViewModels.Home;
 
 namespace mycms.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IModelReader<Article> reader = null;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(
+            IModelReader<Article> reader)
         {
-            _logger = logger;
+            this.reader = reader;
         }
 
         public IActionResult Index()
         {
-            return View();
-        }
+            var result = this.reader
+                .Select(x => new ArticleItemViewModel(){
+                    Id = x.Id,
+                    Title = x.Title,
+                    Subtitle = x.Subtitle,
+                    Author = x.Author
+                }).ToList();
 
-        public IActionResult Privacy()
+            return View(result);
+        }
+        public IActionResult Article(int id)
         {
-            return View();
+            var result = this.reader
+                .Where(x => x.Id == id)
+                .Select(x => new ArticleViewModel(){
+                    Id = x.Id,
+                    Title = x.Title,
+                    Subtitle = x.Subtitle,
+                    Content = x.Content,
+                    Author = x.Author
+                }).SingleOrDefault();
+
+            return View(result);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

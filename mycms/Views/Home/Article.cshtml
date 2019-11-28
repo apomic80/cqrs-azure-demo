@@ -1,0 +1,11 @@
+﻿@model mycms.Models.ViewModels.Home.ArticleViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div>
+    <a asp-action="Index">Back to Home</a>
+</div>
+<h4 class="mt-2">@Model.Subtitle</h4>
+<h2>@Model.Title</h2>
+<footer class="blockquote-footer">@Model.Author</footer>
+<p class="mt-3">@Model.Content</p>

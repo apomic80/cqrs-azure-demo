@@ -1,8 +1,17 @@
-﻿@{
+﻿@model IEnumerable<mycms.Models.ViewModels.Home.ArticleItemViewModel>
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2 class="ml-3">Articles</h2>
+
+@foreach (var item in Model) {
+<div class="card float-left ml-3 mt-3" style="width: 22rem;">
+    <div class="card-body">
+        <h5 class="card-title">@item.Title</h5>
+        <h6 class="card-subtitle mb-2 text-muted">@item.Author</h6>
+        <p class="card-text">@item.Subtitle</p>
+        <a class="card-link" asp-area="" asp-controller="Home" asp-action="Article" asp-route-id="@item.Id">Read more ...</a>
+    </div>
 </div>
+}
