@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using mycms.Data.Infrastructure;
 using mycms_fe.Data;
+using StackExchange.Redis;
 
 namespace mycms
 {
@@ -21,10 +22,10 @@ namespace mycms
         {
             services.AddTransient(typeof(IModelReader<>), typeof(RedisModelReader<>));
             services.AddControllersWithViews();
-            services.AddDistributedRedisCache(cfg => 
-            {
-                cfg.Configuration = Configuration.GetConnectionString("RedisConnection");
-            });
+            
+            var connString = Configuration.GetConnectionString("RedisConnection");
+            IDatabase database = ConnectionMultiplexer.Connect(connString).GetDatabase();
+            services.AddSingleton<IDatabase>(database);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
