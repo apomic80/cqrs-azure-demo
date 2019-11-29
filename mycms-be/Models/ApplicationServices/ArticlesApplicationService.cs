@@ -53,25 +53,23 @@ namespace mycms.Models.ApplicationServices
             var article = this.getArticle(model);
             this.repository.Create(article);
             this.repository.SaveChanges();
-            var crudEvent = new ArticleCRUDEvent() 
-            {
-                Entity = article,
-                Operation = CRUDOperation.CREATE
-            };
-            var json = JsonSerializer.Serialize(crudEvent);
-            this.topicClient.SendAsync(new Message(Encoding.UTF8.GetBytes(json)));
+            this.raiseEvent(CRUDOperation.CREATE, article);
         }
 
         public void Update(ArticleViewModel model)
         {
-            this.repository.Update(this.getArticle(model));
+            var article = this.getArticle(model);
+            this.repository.Update(article);
             this.repository.SaveChanges();
+            this.raiseEvent(CRUDOperation.UPDATE, article);
         }
 
         public void Delete(ArticleViewModel model)
         {
-            this.repository.Delete(this.getArticle(model));
+            var article = this.getArticle(model);
+            this.repository.Delete(article);
             this.repository.SaveChanges();
+            this.raiseEvent(CRUDOperation.DELETE, article);
         }
 
         private Article getArticle(ArticleViewModel model)
@@ -84,6 +82,17 @@ namespace mycms.Models.ApplicationServices
                 Content = model.Content,
                 Author = model.Author
             };
+        }
+
+        private void raiseEvent(CRUDOperation operation, Article entity)
+        {
+            var crudEvent = new ArticleCRUDEvent() 
+            {
+                Entity = entity,
+                Operation = operation
+            };
+            var json = JsonSerializer.Serialize(crudEvent);
+            this.topicClient.SendAsync(new Message(Encoding.UTF8.GetBytes(json)));
         }
     }
 }

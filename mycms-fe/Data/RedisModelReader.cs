@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
-using Microsoft.Extensions.Caching.Distributed;
 using mycms.Data.Infrastructure;
+using StackExchange.Redis;
 
 namespace mycms_fe.Data
 {
@@ -14,9 +14,9 @@ namespace mycms_fe.Data
         private readonly IEnumerable<T> collection = null;
 
         public RedisModelReader(
-            IDistributedCache cache)
+            IDatabase cache)
         {
-            var json = cache.GetString(typeof(T).Name);
+            var json = cache.StringGet(typeof(T).Name);
             this.collection = string.IsNullOrEmpty(json)
                 ? new List<T>() 
                 : JsonSerializer.Deserialize<IEnumerable<T>>(json);

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using mycms.Data;
 using mycms.Data.Infrastructure;
 using mycms.Models.ApplicationServices;
+using StackExchange.Redis;
 
 namespace mycms
 {
@@ -37,7 +38,6 @@ namespace mycms
                     ));
 
             services.AddControllersWithViews();
-
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
