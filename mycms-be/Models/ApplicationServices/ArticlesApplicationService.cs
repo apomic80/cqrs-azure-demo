@@ -1,19 +1,27 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Azure.ServiceBus;
 using mycms.Data.Entities;
 using mycms.Data.Infrastructure;
 using mycms.Models.ViewModels.Articles;
+using mycms_be.Data.Events;
+using mycms_be.Data.Infrastructure;
 
 namespace mycms.Models.ApplicationServices
 {
     public class ArticlesApplicationService : IArticlesApplicationService
     {
         private readonly IRepository<Article, int> repository = null;
+        private readonly ITopicClient topicClient = null;
 
         public ArticlesApplicationService(
-            IRepository<Article, int> repository)
+            IRepository<Article, int> repository,
+            ITopicClient topicClient)
         {
             this.repository = repository;
+            this.topicClient = topicClient;
         }
         
         public IEnumerable<ArticleListItemViewModel> GetAll()
@@ -42,8 +50,16 @@ namespace mycms.Models.ApplicationServices
 
         public void Create(ArticleViewModel model)
         {
-            this.repository.Create(this.getArticle(model));
+            var article = this.getArticle(model);
+            this.repository.Create(article);
             this.repository.SaveChanges();
+            var crudEvent = new ArticleCRUDEvent() 
+            {
+                Entity = article,
+                Operation = CRUDOperation.CREATE
+            };
+            var json = JsonSerializer.Serialize(crudEvent);
+            this.topicClient.SendAsync(new Message(Encoding.UTF8.GetBytes(json)));
         }
 
         public void Update(ArticleViewModel model)

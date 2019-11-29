@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using mycms.Data.Infrastructure;
 
 namespace mycms.Data
@@ -11,15 +9,12 @@ namespace mycms.Data
         : IDisposable, IRepository<T, K> where T: class
     {
         private readonly MyCmsDbContext context;
-        private readonly IDistributedCache cache;
         private readonly DbSet<T> entitySet;
 
         public EFRepository(
-            MyCmsDbContext context,
-            IDistributedCache cache)
+            MyCmsDbContext context)
         {
             this.context = context;
-            this.cache = cache;
             this.entitySet = this.context.Set<T>();
         }
         
@@ -58,8 +53,6 @@ namespace mycms.Data
         public void SaveChanges()
         {
             this.context.SaveChanges();
-            var json = JsonSerializer.Serialize(this.GetAll().ToList());
-            this.cache.SetString(typeof(T).Name, json);
         }
 
         public void Dispose()

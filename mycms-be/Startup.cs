@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,13 +27,17 @@ namespace mycms
 
             services.AddTransient(typeof(IRepository<,>), typeof(EFRepository<,>));
             services.AddTransient<IArticlesApplicationService, ArticlesApplicationService>();
+            
+            var conn = Configuration.GetValue<string>("AppSettings:ServiceBusConnectionString");
+            
+            services.AddSingleton<ITopicClient>(
+                new TopicClient(
+                    Configuration.GetValue<string>("AppSettings:ServiceBusConnectionString"),
+                    Configuration.GetValue<string>("AppSettings:TopicName")
+                    ));
 
             services.AddControllersWithViews();
 
-            services.AddDistributedRedisCache(cfg => 
-            {
-                cfg.Configuration = Configuration.GetConnectionString("RedisConnection");
-            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
